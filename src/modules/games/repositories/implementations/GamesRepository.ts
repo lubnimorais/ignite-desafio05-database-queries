@@ -1,4 +1,4 @@
-import { getRepository, Repository } from 'typeorm';
+import { getManager, getRepository, Repository } from 'typeorm';
 
 import { User } from '../../../users/entities/User';
 import { Game } from '../../entities/Game';
@@ -26,16 +26,17 @@ export class GamesRepository implements IGamesRepository {
   }
 
   async findUsersByGameId(id: string): Promise<User[]> {
-    const games = await this.repository
-      .createQueryBuilder('game')
-      .innerJoin('game.users', 'user')
-      .where('game.id = :id', { id })
-      .getMany();
-
-      const users = games[0].users;
-
-      return users;
-      
+    // return getManager().createQueryBuilder(User, 'user')
+    // .leftJoinAndSelect('user.games', 'game')
+    // .where('game.id = :id', { id })
+    // .getMany();
+    
+    return await this.repository
+      .createQueryBuilder('games')
+      .relation(Game, 'users')
+      .of(id)
+      .loadMany();
+    
       // Complete usando query builder
   }
 }
